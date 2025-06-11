@@ -3,8 +3,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
-    .setTitle('Notion Clone API')
-    .setDescription('This is the API documentation for Notion Clone API')
+    .setTitle('Payslip Management System')
+    .setDescription('This is the API documentation for Payslip Management System API')
     .setVersion('0.0.1')
     .addCookieAuth('access_token')
     .setExternalDoc('Postman Collection', '/swagger-json')
