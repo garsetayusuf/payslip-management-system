@@ -1,6 +1,6 @@
-# Payroll Management System
+# Payslip Management System
 
-A scalable payroll management system built with NestJS, Prisma, and PostgreSQL that handles employee attendance, overtime tracking, reimbursements, and automated payslip generation.
+A scalable payslip management system built with NestJS, Prisma, and PostgreSQL that handles employee attendance, overtime tracking, reimbursements, and automated payslip generation.
 
 ## Features
 
@@ -60,7 +60,7 @@ src/
 
    ```bash
    git clone https://github.com/garsetayusuf/payslip-management-system
-   cd payroll-management-system
+   cd payslip-management-system
    ```
 
 2. **Install dependencies**
