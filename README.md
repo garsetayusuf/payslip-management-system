@@ -1,98 +1,312 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Payroll Management System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A scalable payroll management system built with NestJS, Prisma, and PostgreSQL that handles employee attendance, overtime tracking, reimbursements, and automated payslip generation.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Employee Management**: Manage 100+ employees with individual salary configurations
+- **Attendance Tracking**: Flexible attendance submission with prorated salary calculations
+- **Overtime Management**: Track and approve overtime with 2x salary multiplier
+- **Reimbursement System**: Handle employee expense reimbursements
+- **Automated Payroll**: Process payroll for specific periods with one-click generation
+- **Payslip Generation**: Detailed payslip breakdown for employees and admin summaries
+- **Audit Trail**: Complete traceability with timestamps, user tracking, and IP logging
+- **Role-based Access**: Separate admin and employee functionalities
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Architecture
 
-## Project setup
+### Tech Stack
 
-```bash
-$ pnpm install
+- **Backend**: NestJS (Node.js framework)
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT-based authentication
+- **API Documentation**: Swagger/OpenAPI
+- **Testing**: Jest for unit and integration tests
+- **Server**: Fastify
+
+## Documentation
+
+1. System Design : using mermaid.js to create a system design diagram for this project and how it work, you can find the diagram in this [link](https://www.mermaidchart.com/app/projects/2bab3068-5bac-4a35-baae-4af2f7fbe6a4/diagrams/b27a0009-f0c0-4890-ae2f-b494b3a2493a/share/invite/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N1bWVudElEIjoiYjI3YTAwMDktZjBjMC00ODkwLWFlMmYtYjQ5NGIzYTI0OTNhIiwiYWNjZXNzIjoiVmlldyIsImlhdCI6MTc0OTYyOTIzNH0.adjNcfFDJ2IothPmVRRmwciQJXu3RyHx3R3ZRlwFvK8)
+2. Database Design : using dbdiagram to create database schema for this project, you can find the diagram in this [link](https://dbdiagram.io/d/Payslip-management-system-673c0d93e9daa85acae8d244)
+
+### Project Structure
+
+```
+src/
+├── common/
+│   ├── config/           # Environment and Swagger configuration
+│   ├── decorators/       # Custom decorators (roles, response, etc.)
+│   ├── guards/           # Authentication and authorization guards
+│   ├── interceptors/     # Request/response interceptors
+│   ├── interfaces/       # TypeScript interfaces
+│   ├── middleware/       # HTTP logging middleware
+│   ├── modules/          # Core business modules
+│   └── shared/           # Shared services (Prisma)
+├── helpers/              # Utility functions and examples
+└── main.ts              # Application entry point
 ```
 
-## Compile and run the project
+## Installation
 
-```bash
-# development
-$ pnpm run start
+### Prerequisites
 
-# watch mode
-$ pnpm run start:dev
+- Node.js (v16 or higher)
+- PostgreSQL (v12 or higher)
+- pnpm
 
-# production mode
-$ pnpm run start:prod
+### Setup Steps
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/garsetayusuf/payslip-management-system
+   cd payroll-management-system
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Environment Configuration**
+   Create a `.env` file in the root directory:
+
+  ```env
+  # Database Configuration
+  # Use the following DATABASE_URL when PostgreSQL is already installed on the host
+  DATABASE_URL=postgresql://postgres:postgres@db:5432/payslip?schema=public
+
+  # Docker-based PostgreSQL configuration (example for docker-compose)
+  POSTGRES_HOST=postgres
+  POSTGRES_PORT=5433
+  POSTGRES_USER=postgres
+  POSTGRES_PASSWORD=postgres
+  POSTGRES_DB=payslip
+
+  # Server Configuration
+  NODE_ENV=development
+  PORT=5000
+  CORS_ORIGIN=http://localhost:3000,http://localhost:3001,http://localhost:5173
+
+  # JWT Configuration
+  JWT_SECRET=<your-jwt-secret>
+  JWT_EXPIRES=30d
+   ```
+
+- Note
+  - If PostgreSQL is already running on your host machine, you must use:
+
+    ```env
+    DATABASE_URL=postgresql://postgres:postgres@db:5432/payslip?schema=public
+    POSTGRES_HOST=postgres
+    POSTGRES_PORT=5433
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=postgres
+    POSTGRES_DB=payslip
+      ```  
+
+  - The port `5433` is used to avoid conflict with default PostgreSQL port `5432`.
+  - If you are running PostgreSQL in a Docker container, ensure that the service name is `db` and the container port is `5432`
+  - Modify `docker-compose.yml` accordingly if you're using Docker for your development environment.
+
+4. **Database Setup**
+
+   ```bash
+   # Generate Prisma client
+   npx prisma generate
+   
+   # Run database migrations
+   npx prisma migrate deploy
+   
+   # Seed the database with fake data
+   npx prisma db seed
+   ```
+
+5. **Start the application**
+
+   ```bash
+   # Development mode
+   npm run start:dev
+   
+   # Production mode
+   npm run build
+   npm run start:prod
+   ```
+
+## Authentication
+
+The system uses JWT-based authentication with two user roles:
+
+### Default Admin Account
+
+- **Username**: `admin`
+- **Password**: `admin123`
+
+### Employee Accounts
+
+100 employees are auto-generated with usernames `employee1` to `employee100` and password `password123`.
+
+## API Documentation
+
+Once the application is running, access the Swagger documentation at:
+
+```
+http://localhost:5000/swagger
 ```
 
-## Run tests
+### Core Endpoints
+
+#### Authentication
+
+- `POST /auth/login` - User login
+- `POST /auth/register` - User registration
+- `POST /auth/change-password` - Change password
+
+#### Admin Endpoints
+
+- `POST /attendance-period` - Create attendance period
+- `GET /attendance-period` - Get attendance periods
+- `POST /payroll/process` - Process payroll for a period
+- `GET /payroll/summary` - Get payroll summary for all employees
+
+#### Employee Endpoints
+
+- `POST /attendance` - Submit daily attendance
+- `GET /attendance` - Get personal attendance records
+- `POST /overtime` - Submit overtime request
+- `GET /overtime` - Get personal overtime records
+- `POST /reimbursement` - Submit reimbursement request
+- `GET /reimbursement` - Get personal reimbursement records
+- `GET /payslip` - Generate personal payslip
+
+## Business Rules
+
+### Attendance
+
+- Regular working hours: 9 AM - 5 PM (8 hours/day)
+- Working days: Monday - Friday
+- Check-in anytime during the day counts as attendance
+- One submission per day maximum
+- Weekend submissions are not allowed
+- Salary is prorated based on attendance percentage
+
+### Overtime
+
+- Must be submitted after regular working hours
+- Maximum 3 hours per day
+- Can be taken any day of the week
+- Paid at 2x the prorated hourly rate
+- Requires approval workflow
+
+### Reimbursements
+
+- Employees can submit expense reimbursements
+- Must include amount and description
+- Included in payslip after approval
+
+### Payroll Processing
+
+- Admin processes payroll for specific attendance periods
+- Once processed, records from that period are locked
+- Each period can only be processed once
+- Generates payslips for all employees
+
+## Database Schema
+
+The system uses the following main entities:
+
+- **User**: Authentication and basic user info
+- **Employee**: Employee details and salary information
+- **AttendancePeriod**: Payroll periods defined by admin
+- **Attendance**: Daily attendance records
+- **Overtime**: Overtime requests and approvals
+- **Reimbursement**: Expense reimbursement requests
+- **Payroll**: Processed payroll records
+- **Payslip**: Generated payslip details
+- **AuditLog**: System audit trail
+
+## Testing
+
+Run the test suites:
 
 ```bash
-# unit tests
-$ pnpm run test
+# Unit tests
+npm run test
 
-# e2e tests
-$ pnpm run test:e2e
+# Integration tests
+npm run test:e2e
 
-# test coverage
-$ pnpm run test:cov
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
 ```
 
-## Deployment
+## Audit & Traceability
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+The system implements comprehensive audit logging:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **Timestamps**: All records include `created_at` and `updated_at`
+- **User Tracking**: Track `created_by` and `updated_by` for all operations
+- **IP Logging**: Store client IP addresses for requests
+- **Audit Trail**: Maintain detailed audit logs for significant changes
+- **Request Tracing**: Include `request_id` for cross-service tracing
+
+## Performance & Scalability
+
+### Optimization Features
+
+- Database indexing on frequently queried fields
+- Pagination support for large datasets
+- Efficient query patterns with Prisma
+- Request/response caching strategies
+- Performance monitoring interceptors
+
+### Scaling Considerations
+
+- Database connection pooling
+- Horizontal scaling support
+- Caching layer integration ready
+- Microservice architecture compatible
+
+## Development
+
+### Available Scripts
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+npm run build          # Build the application
+npm run start         # Start production server
+npm run start:dev     # Start development server
+npm run start:debug   # Start with debugging
+npm run lint          # Run ESLint
+npm run test          # Run unit tests
+npm run test:e2e      # Run end-to-end tests
+npm run test:cov      # Run tests with coverage
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Code Quality
 
-## Resources
+- ESLint configuration for code consistency
+- Prettier for code formatting
+- TypeScript for type safety
 
-Check out a few resources that may come in handy when working with NestJS:
+## Troubleshooting
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Common Issues
 
-## Support
+1. **Database Connection Failed**
+   - Verify PostgreSQL is running
+   - Check DATABASE_URL in .env file
+   - Ensure database exists and user has permissions
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+2. **JWT Token Invalid**
+   - Check JWT_SECRET in environment variables
+   - Verify token expiration time
+   - Ensure proper Authorization header format
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+3. **Migration Errors**
+   - Reset database: `npx prisma migrate reset`
+   - Generate client: `npx prisma generate`
+   - Run migrations: `npx prisma migrate deploy`
