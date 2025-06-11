@@ -1,0 +1,369 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+
+  @@map("user_role")
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+
+  @@map("employee_status")
+}
+
+enum PeriodStatus {
+  ACTIVE
+  CLOSED
+
+  @@map("period_status")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+
+  @@map("attendance_status")
+}
+
+enum OvertimeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+
+  @@map("overtime_status")
+}
+
+enum ReimbursementStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("reimbursement_status")
+}
+
+enum AuditAction {
+  READ
+  CREATE
+  UPDATE
+  DELETE
+
+  @@map("audit_action")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique @db.VarChar(255)
+  username  String   @unique @db.VarChar(50)
+  password  String   @db.VarChar(255)
+  role      UserRole @default(EMPLOYEE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  employee     Employee?
+  createdUsers User[]    @relation("UserCreatedBy")
+  updatedUsers User[]    @relation("UserUpdatedBy")
+  createdBy    User?     @relation("UserCreatedBy", fields: [createdById], references: [id])
+  updatedBy    User?     @relation("UserUpdatedBy", fields: [updatedById], references: [id])
+  createdById  String?   @map("created_by")
+  updatedById  String?   @map("updated_by")
+
+  // Employee-related relations where user is creator/updater
+  createdEmployees      Employee[]         @relation("EmployeeCreatedBy")
+  updatedEmployees      Employee[]         @relation("EmployeeUpdatedBy")
+  createdPeriods        AttendancePeriod[] @relation("PeriodCreatedBy")
+  updatedPeriods        AttendancePeriod[] @relation("PeriodUpdatedBy")
+  processedPeriods      AttendancePeriod[] @relation("PeriodProcessedBy")
+  createdAttendances    Attendance[]       @relation("AttendanceCreatedBy")
+  updatedAttendances    Attendance[]       @relation("AttendanceUpdatedBy")
+  createdOvertimes      Overtime[]         @relation("OvertimeCreatedBy")
+  updatedOvertimes      Overtime[]         @relation("OvertimeUpdatedBy")
+  createdReimbursements Reimbursement[]    @relation("ReimbursementCreatedBy")
+  updatedReimbursements Reimbursement[]    @relation("ReimbursementUpdatedBy")
+  createdPayslips       Payslip[]          @relation("PayslipCreatedBy")
+  updatedPayslips       Payslip[]          @relation("PayslipUpdatedBy")
+  approvedOvertimes     Overtime[]         @relation("OvertimeApprovedBy")
+  auditLogs             AuditLog[]
+  requestLogs           RequestLog[]
+
+  @@index([username])
+  @@index([role])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Employee {
+  id             String         @id @default(uuid())
+  userId         String         @unique @map("user_id")
+  employeeCode   String         @unique @map("employee_code") @db.VarChar(20)
+  fullName       String         @map("full_name") @db.VarChar(100)
+  employeeNumber String         @map("employee_number") @db.VarChar(20)
+  department     String         @map("department") @db.VarChar(50)
+  position       String         @map("position") @db.VarChar(50)
+  email          String         @unique @db.VarChar(100)
+  monthlySalary  Decimal        @map("monthly_salary") @db.Decimal(12, 2)
+  status         EmployeeStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  createdById    String?        @map("created_by")
+  updatedById    String?        @map("updated_by")
+
+  // Relations
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdBy      User?           @relation("EmployeeCreatedBy", fields: [createdById], references: [id])
+  updatedBy      User?           @relation("EmployeeUpdatedBy", fields: [updatedById], references: [id])
+  attendances    Attendance[]
+  overtimes      Overtime[]
+  reimbursements Reimbursement[]
+  payslips       Payslip[]
+
+  @@index([employeeCode])
+  @@index([email])
+  @@index([status])
+  @@index([monthlySalary])
+  @@index([createdAt])
+  @@map("employees")
+}
+
+model AttendancePeriod {
+  id               String       @id @default(uuid())
+  name             String       @db.VarChar(50)
+  startDate        DateTime     @map("start_date") @db.Date
+  endDate          DateTime     @map("end_date") @db.Date
+  status           PeriodStatus @default(ACTIVE)
+  isActive         Boolean      @default(true) @map("is_active")
+  payrollProcessed Boolean      @default(false) @map("payroll_processed")
+  processedAt      DateTime?    @map("processed_at")
+  processedById    String?      @map("processed_by")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  createdById      String?      @map("created_by")
+  updatedById      String?      @map("updated_by")
+
+  // Relations
+  createdBy      User?           @relation("PeriodCreatedBy", fields: [createdById], references: [id])
+  updatedBy      User?           @relation("PeriodUpdatedBy", fields: [updatedById], references: [id])
+  processedBy    User?           @relation("PeriodProcessedBy", fields: [processedById], references: [id])
+  attendances    Attendance[]
+  overtimes      Overtime[]
+  reimbursements Reimbursement[]
+  payslips       Payslip[]
+
+  @@index([startDate])
+  @@index([endDate])
+  @@index([status])
+  @@index([isActive])
+  @@index([payrollProcessed])
+  @@index([createdAt])
+  @@map("attendance_periods")
+}
+
+model Attendance {
+  id                 String           @id @default(uuid())
+  employeeId         String           @map("employee_id")
+  attendancePeriodId String           @map("attendance_period_id")
+  date               DateTime         @db.Date
+  checkInTime        DateTime?        @map("check_in_time")
+  checkOutTime       DateTime?        @map("check_out_time")
+  status             AttendanceStatus @default(PRESENT)
+  notes              String?
+  ipAddress          String?          @map("ip_address") @db.Inet
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  createdById        String?          @map("created_by")
+  updatedById        String?          @map("updated_by")
+
+  // Relations
+  employee         Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  attendancePeriod AttendancePeriod @relation(fields: [attendancePeriodId], references: [id], onDelete: Cascade)
+  createdBy        User?            @relation("AttendanceCreatedBy", fields: [createdById], references: [id])
+  updatedBy        User?            @relation("AttendanceUpdatedBy", fields: [updatedById], references: [id])
+
+  @@unique([employeeId, date])
+  @@index([employeeId, attendancePeriodId])
+  @@index([date])
+  @@index([status])
+  @@index([createdAt])
+  @@map("attendances")
+}
+
+model Overtime {
+  id                 String         @id @default(uuid())
+  employeeId         String         @map("employee_id")
+  attendancePeriodId String         @map("attendance_period_id")
+  date               DateTime       @db.Date
+  startTime          String         @map("start_time") @db.VarChar(5) // e.g., "09:00"
+  endTime            String         @map("end_time") @db.VarChar(5) // e.g., "17:00"
+  hoursWorked        Decimal        @map("hours_worked") @db.Decimal(4, 2)
+  reason             String
+  description        String?
+  status             OvertimeStatus @default(PENDING)
+  hasAttendance      Boolean        @default(false) @map("has_attendance")
+  submittedAt        DateTime?      @map("submitted_at")
+  approvedAt         DateTime?      @map("approved_at")
+  approvedById       String?        @map("approved_by")
+  cancelledAt        DateTime?      @map("cancelled_at")
+  ipAddress          String?        @map("ip_address") @db.Inet
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  createdById        String?        @map("created_by")
+  updatedById        String?        @map("updated_by")
+
+  // Relations
+  employee         Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  attendancePeriod AttendancePeriod @relation(fields: [attendancePeriodId], references: [id], onDelete: Cascade)
+  createdBy        User?            @relation("OvertimeCreatedBy", fields: [createdById], references: [id])
+  updatedBy        User?            @relation("OvertimeUpdatedBy", fields: [updatedById], references: [id])
+  approvedBy       User?            @relation("OvertimeApprovedBy", fields: [approvedById], references: [id]) // New relation
+
+  @@unique([employeeId, date]) // Changed from overtimeDate to date
+  @@index([employeeId, attendancePeriodId])
+  @@index([date]) // Changed from overtimeDate to date
+  @@index([status])
+  @@index([createdAt])
+  @@map("overtimes")
+}
+
+model Reimbursement {
+  id                 String              @id @default(uuid())
+  employeeId         String              @map("employee_id")
+  attendancePeriodId String              @map("attendance_period_id")
+  amount             Decimal             @db.Decimal(12, 2)
+  description        String
+  receiptUrl         String?             @map("receipt_url") @db.VarChar(500)
+  status             ReimbursementStatus @default(PENDING)
+  ipAddress          String?             @map("ip_address") @db.Inet
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  createdById        String?             @map("created_by")
+  updatedById        String?             @map("updated_by")
+
+  // Relations
+  employee         Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  attendancePeriod AttendancePeriod @relation(fields: [attendancePeriodId], references: [id], onDelete: Cascade)
+  createdBy        User?            @relation("ReimbursementCreatedBy", fields: [createdById], references: [id])
+  updatedBy        User?            @relation("ReimbursementUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([employeeId, attendancePeriodId])
+  @@index([employeeId])
+  @@index([status])
+  @@index([amount])
+  @@index([createdAt])
+  @@map("reimbursements")
+}
+
+model Payslip {
+  id                 String @id @default(uuid())
+  employeeId         String @map("employee_id")
+  attendancePeriodId String @map("attendance_period_id")
+  payslipNumber      String @unique @map("payslip_number") @db.VarChar(50)
+
+  // Salary Components
+  baseSalary     Decimal @map("base_salary") @db.Decimal(12, 2)
+  workingDays    Int     @map("working_days")
+  attendedDays   Int     @map("attended_days")
+  proratedSalary Decimal @map("prorated_salary") @db.Decimal(12, 2)
+
+  // Overtime Components
+  totalOvertimeHours Decimal @default(0) @map("total_overtime_hours") @db.Decimal(4, 2)
+  overtimeRate       Decimal @default(0) @map("overtime_rate") @db.Decimal(12, 2)
+  totalOvertimePay   Decimal @default(0) @map("total_overtime_pay") @db.Decimal(12, 2)
+
+  // Reimbursement Components
+  totalReimbursements Decimal @default(0) @map("total_reimbursements") @db.Decimal(12, 2)
+
+  // Final Amount
+  grossPay   Decimal @map("gross_pay") @db.Decimal(12, 2)
+  deductions Decimal @default(0) @db.Decimal(12, 2)
+  netPay     Decimal @map("net_pay") @db.Decimal(12, 2)
+
+  generatedAt DateTime @default(now()) @map("generated_at")
+  ipAddress   String?  @map("ip_address") @db.Inet
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdById String?  @map("created_by")
+  updatedById String?  @map("updated_by")
+
+  // Relations
+  employee         Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  attendancePeriod AttendancePeriod @relation(fields: [attendancePeriodId], references: [id], onDelete: Cascade)
+  createdBy        User?            @relation("PayslipCreatedBy", fields: [createdById], references: [id])
+  updatedBy        User?            @relation("PayslipUpdatedBy", fields: [updatedById], references: [id])
+
+  @@unique([employeeId, attendancePeriodId])
+  @@index([payslipNumber])
+  @@index([employeeId])
+  @@index([attendancePeriodId])
+  @@index([generatedAt])
+  @@index([netPay])
+  @@index([createdAt])
+  @@map("payslips")
+}
+
+model AuditLog {
+  id        String      @id @default(uuid())
+  tableName String      @map("table_name") @db.VarChar(50)
+  recordId  String      @map("record_id")
+  action    AuditAction
+  oldValues Json?       @map("old_values")
+  newValues Json?       @map("new_values")
+  userId    String?     @map("user_id")
+  ipAddress String?     @map("ip_address") @db.Inet
+  requestId String?     @map("request_id") @db.VarChar(100)
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([tableName])
+  @@index([recordId])
+  @@index([action])
+  @@index([userId])
+  @@index([requestId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model RequestLog {
+  id             String   @id @default(uuid())
+  requestId      String   @unique @map("request_id") @db.VarChar(100)
+  method         String   @db.VarChar(10)
+  endpoint       String   @db.VarChar(500)
+  userId         String?  @map("user_id")
+  ipAddress      String   @map("ip_address") @db.Inet
+  userAgent      String?  @map("user_agent")
+  requestBody    Json?    @map("request_body")
+  responseStatus Int?     @map("response_status")
+  responseTimeMs Int?     @map("response_time_ms")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([requestId])
+  @@index([userId])
+  @@index([endpoint])
+  @@index([responseStatus])
+  @@index([createdAt])
+  @@map("request_logs")
+}
