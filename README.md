@@ -302,12 +302,12 @@ npm run test:cov      # Run tests with coverage
 
 1. **Database Connection Failed**
    - Verify PostgreSQL is running
-   - Check DATABASE_URL in .env file
+   - Check `DATABASE_URL`in `.env` file
    - Ensure database exists and user has permissions
 
 2. **Cookie Not Set / Missing**
    - Confirm `withCredentials: true` on frontend
-   - In production, make sure HTTPS is used with secure: true
+   - In production, make sure HTTPS is used with `secure: true`
 
 3. **Migration Errors**
    - Reset database: `npx prisma migrate reset`
