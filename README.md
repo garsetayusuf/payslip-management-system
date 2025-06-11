@@ -136,7 +136,7 @@ src/
 
 ## Authentication
 
-The system uses JWT-based authentication with two user roles:
+The system uses cookie-based session authentication instead of bearer tokens. After login, the server sets an HTTP-only cookie that stores the session or access token.
 
 ### Default Admin Account
 
@@ -146,6 +146,10 @@ The system uses JWT-based authentication with two user roles:
 ### Employee Accounts
 
 100 employees are auto-generated with usernames `employee1` to `employee100` and password `password123`.
+
+- Note:
+  - Cookies are configured to be HTTP-only and secure in production.
+  - The cookie is set with `withCredentials: true` on the frontend.
 
 ## API Documentation
 
@@ -301,10 +305,9 @@ npm run test:cov      # Run tests with coverage
    - Check DATABASE_URL in .env file
    - Ensure database exists and user has permissions
 
-2. **JWT Token Invalid**
-   - Check JWT_SECRET in environment variables
-   - Verify token expiration time
-   - Ensure proper Authorization header format
+2. **Cookie Not Set / Missing**
+   - Confirm `withCredentials: true` on frontend
+   - In production, make sure HTTPS is used with secure: true
 
 3. **Migration Errors**
    - Reset database: `npx prisma migrate reset`
